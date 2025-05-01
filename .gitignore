@@ -1,32 +1,145 @@
-# Prerequisites
-*.d
+#include<vector>
+#include <iostream>
+#include<windows.h>
+using namespace std;
+class CardBlockedException : public exception {
+public:
+    const char* what() const noexcept override {
+        return "Kart bloklandi.";
+    }
+};
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+class ATM {
+private:
+    string correctPin = "1234";
+    double balance = 1000.0;
 
-# Precompiled Headers
-*.gch
-*.pch
+public:
+    void run() {
+        int attempts = 0;
+        string inputPin;
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
+        while (attempts < 3) {
+            cout << "PIN daxil edin: ";
+            cin >> inputPin;
 
-# Fortran module files
-*.mod
-*.smod
+            if (inputPin == correctPin) {
+                system("cls");
+                showMenu();
+                return;
+            }
+            else {
+                attempts++;
+                cout << "Yanlis PIN. Qalan cehd: " << 3 - attempts << endl;
+            }
+        }
 
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
+        throw CardBlockedException();
+    }
 
-# Executables
-*.exe
-*.out
-*.app
+    void showMenu() {
+        int choice;
+
+        while (true) {
+            cout << "--- Ogurluq Bank ATM ---"<<endl;
+            cout << "1. Balance" << endl;
+            cout << "2. Cash Out" << endl;
+            cout << "3. Cash In" << endl;
+            cout << "4. Change PIN" << endl;
+            cout << "5. Exit" << endl;
+            cout << "Seciminizi daxil edin: " << endl;
+            cin >> choice;
+
+            switch (choice) {
+            case 1:
+                checkBalance();
+                break;
+            case 2:
+                cashOut();
+                break;
+            case 3:
+                cashIn();
+                break;
+            case 4:
+                changePin();
+                break;
+            case 5:
+                cout << "Sag olun. Kartinizi unutmayin." << endl;
+                return;
+            default:
+                cout << "Yanlis secim. Tekrar cehd edin." << endl;
+            }
+            Sleep(1000);
+            system("cls");
+        }
+    }
+
+    void checkBalance() {
+        cout << "Balansiniz: " << balance << " AZN" << endl;
+    }
+
+    void cashOut() {
+        double amount;
+        cout << "Cixarmaq istediyiniz mebleg: ";
+        cin >> amount;
+
+        if (amount <= 0) {
+            cout << "Yanlis mebleg daxil edilib." << endl;
+        }
+        else if (amount > balance) {
+            cout << "Balansda kifayet qeder vesait yoxdur." << endl;
+        }
+        else {
+            balance -= amount;
+            cout << amount << " AZN cixarildi. Yeni balans: " << balance << " AZN" << endl;
+        }
+    }
+
+    void cashIn() {
+        double amount;
+        cout << "artirmaq istediyiniz mebleg: ";
+        cin >> amount;
+
+        if (amount <= 0) {
+            cout << "Yanlis mebleg daxil edilib." << endl;
+        }
+        else {
+            balance += amount;
+            cout << amount << " AZN elave edildi. Yeni balans: " << balance << " AZN" << endl;
+        }
+    }
+
+    void changePin() {
+        string oldPin, newPin;
+
+        cout << "Kohne PIN daxil edin: ";
+        cin >> oldPin;
+
+        if (oldPin == correctPin) {
+            cout << "Yeni PIN daxil edin: ";
+            cin >> newPin;
+
+            if (newPin.length() == 4) {
+                correctPin = newPin;
+                cout << "PIN ugurla deyisdirildi." << endl;
+            }
+            else {
+                cout << "PIN 4 reqemden ibaret olmalidir." << endl;
+            }
+        }
+        else {
+            cout << " PIN yanlisdir." << endl;
+        }
+    }
+};
+
+void main() {
+    ATM atm;
+    try {
+        atm.run();
+    }
+    catch (const exception& ex) {
+        cout << ex.what() << endl;
+    }
+}
+
